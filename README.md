@@ -38,5 +38,6 @@ Word 8 and 9.  16 bits raincounter. Word 8 is HI part.  each increment will be 0
 
 Word 10 and 11  UV radiation.  Word 10 is HI part.  
 Word 12,13,14 and may be 15  24 bits of Solar radiation. Could be 32 bits. 
+
 Words 16-20 unknown. steady data
 
