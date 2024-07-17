@@ -1,6 +1,7 @@
 cheap weatherstation sold by Vevor. 
 
 https://nl.aliexpress.com/item/1005005999388306.html?spm=a2g0o.order_list.order_list_main.5.11d779d25eGC8l&gatewayAdapt=glo2nld
+
 TX freq 868.3 Mhz  FSK. Transmitter IC found CMOSTEC CMT2119A. 
 
 Receiver prob CMT2219A. Not sure about this as pcb in the display was mounted backward
@@ -30,4 +31,12 @@ Word 4 LO word of average windspeed. the only relation i could find is by conver
 Word 5 Gust windspeed. Relation to km/u  *73/100
 
 Word 6 Direction word bit 8: bit 2 of this word is setted.  Other bits probably  batt stat etc
+
+Word 7 Direction 0-0ff  8 bits of total 9 (0-360 degrees)
+
+Word 8 and 9.  16 bits raincounter. Word 8 is HI part.  each increment will be 0.2 mm
+
+Word 10 and 11  UV radiation.  Word 10 is HI part.  
+Word 12,13,14 and may be 15  24 bits of Solar radiation. Could be 32 bits. 
+Words 16-20 unknown. steady data
 
