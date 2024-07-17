@@ -12,7 +12,7 @@ Found a datastream starting with a pos/neg pulse 1350us each.
 
 Next 39 preamble, 90us bittime
 
-Followed by sync C0AAC0AAB .
+Followed by sync C0AAC0AA .
 
 the 5 words probably product/security codes 0x14,0AAh,xxx,xxx,xxx
 
