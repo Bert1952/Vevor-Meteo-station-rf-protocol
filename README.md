@@ -37,10 +37,12 @@ Word 13 Direction 0-0ff  8 bits of total 9 (0-360 degrees)
 Word 14 and 15.  16 bits raincounter. Word 8 is HI part.  each increment will be 0.2 mm
 
 Word 16  UV radiation. range 0-16
-Word 17,18,19  24 bits of Solar radiation.  Word 19 is HI word, word 20 middle, word 21 Low part
-Word 20,21: Checksum.  Need to be investigated how this is composed
+Word 17,18,19  24 bits of Solar radiation.  Word 19 is HI word, word 20 middle, word 21 Low part. divide by 36000 to get w/m2 
+
+Word 20,21: CRC16  Need to be investigated . 
 
 Words 22-32 unknown. steady data C1,B2,65,A9,74,39,C7,38,C9,1E Might be a firmware signature
+
 examples outputs
 14,AA,00,24,0D,1E,02,DA,40,01,06,01,01,57,00,1A,06,98,88,F4,CA,F5,C1,B2,65,9A,74,39,C7,38,C9,1E
 14,AA,00,24,0D,1E,02,DA,41,01,0E,02,01,8D,01,1A,06,98,61,42,11,43,C1,B2,65,9A,74,39,C7,38,C9,1E
