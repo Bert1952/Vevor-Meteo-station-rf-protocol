@@ -1,4 +1,3 @@
-
 /*
 * meteorepeater.c
 *
@@ -434,5 +433,4 @@ u8 ReadAD(void)
 	PRR=PRR_reg; //power down devices
 	return (res);
 }
-
 
