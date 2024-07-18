@@ -36,7 +36,7 @@ Word 13 Direction 0-0ff  8 bits of total 9 (0-360 degrees)
 
 Word 14 and 15.  16 bits raincounter. Word 8 is HI part.  each increment will be 0.2 mm
 
-Word 16  UV radiation. Might be 16 bits (word 17)  
+Word 16  UV radiation. range 0-16
 Word 17,18,19  24 bits of Solar radiation.  Word 19 is HI word, word 20 middle, word 21 Low part
 Word 20,21: Checksum.  Need to be investigated how this is composed
 
