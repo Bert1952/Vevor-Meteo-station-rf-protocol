@@ -1,3 +1,4 @@
+
 /*
 * meteorepeater.c
 *
@@ -25,25 +26,23 @@
 #include "defaults.h"
 #include "bmp085.h"
 #define wlen 35
+#define prepos 40
 u8 weatherdata[wlen];
-
+u16 checksum=0;
 u8 txrdpointer=0;
 u8 txwrpointer=0;//
 extern u8 txbuffer[];
 char txuartbuffer[256];
 char firstchar=0;
-float temp=20;  //wordt 2 byte, temp is maal 10
+u16 temp=20;  //wordt 2 byte, temp is maal 10
 u8	hum=11;  //als hex getal is in %
 u16 waverage=10;  //km/uur
 u16 gust=16; //km/uur
 u16 direction=181;; //wordt 360
 static u16 totalrain=2001;
-u16 light=0;
+int32_t light=0;
 u16 hpa=1024;
 u8	dew=55;
-
-static u8 MCRREG=0;
-
 u8 tx_power=0;
 //char dtemp[200];
 //char buffer[30];
@@ -56,27 +55,45 @@ u16 spl=0;
 u8 bittime=90;
 //u16 leadingpuls=0;
 static RAIN   Regendata;
-
-
+/*
+14,AA,00,24,0D,1E,02,D0,45,01,1C,04,01,55,01,1A,05,96,95,E3,B5,E4,C1,B2,65,9A,74,39,C7,38,C9---85,220,3,2,69,213-0
+14,AA,00,24,0D,1E,02,D8,42,01,01,01,01,56,01,1A,06,98,4D,58,CD,59,C1,B2,65,9A,74,39,C7,38,C9---86,228,0,0,66,74-0
+14,AA,00,24,0D,1E,02,DA,40,01,01,00,01,57,01,1A,06,99,13,7F,BB,80,C0,B2,65,9A,74,31,C7,38,C9---87,230,0,0,64,113-0
+14,AA,00,24,0D,1E,02,DD,40,01,01,01,01,57,01,1A,06,98,AD,86,7F,A7,C1,B2,65,9A,74,39,C7,38,C9---87,233,0,0,64,152-0
+14,AA,00,24,0D,1E,02,DA,40,01,06,01,01,57,00,1A,06,98,88,F4,CA,F5,C1,B2,65,9A,74,39,C7,38,C9---87,230,0,0,64,230-0
+14,AA,00,24,0D,1E,02,DA,41,01,0E,02,01,8D,01,1A,06,98,61,42,11,43,C1,B2,65,9A,74,39,C7,38,C9---141,230,1,1,65,52-0
+14,AA,00,24,0D,1E,02,D0,41,01,1A,07,01,93,01,1A,05,94,C6,DE,1C,DF,C1,B2,65,9A,74,39,C7,38,C9---147,220,3,5,65,208-0
+14,AA,00,24,0D,1E,02,CC,42,01,26,0A,01,A6,01,1A,05,95,BF,2C,12,2D,C1,B2,65,9A,74,39,C7,38,C9---166,216,4,7,66,30-0
+14,AA,00,24,0D,1E,02,CD,43,01,2E,0B,01,B5,01,1A,05,95,6E,53,71,54,C1,B2,65,9A,74,39,C7,38,C9---181,217,5,8,67,69-0
+14,AA,00,24,0D,1E,02,D6,3F,01,0B,01,01,BC,01,1A,06,99,3A,16,E4,17,C1,B2,65,9A,74,39,C7,38,C9---188,226,1,0,63,8-0
+14,8A,00,24,0D,1E,02,B8,3F,01,07,02,01,BC,01,1A,06,98,A7,3D,76,3E,C1,B2,E5,9A,74,39,C7,38,C9---188,196,0,1,63,79-0
+14,AA,00,24,0D,1E,02,DC,3E,01,01,02,01,BB,01,1A,06,98,D2,64,C4,65,C1,A2,65,9A,74,39,C7,38,C9---187,232,0,1,62,86-0
+14,AA,00,24,0D,1E,02,DB,3F,01,09,03,01,B5,01,1A,06,98,48,D9,B2,DA,C1,B2,65,9A,74,39,C7,38,C9---181,231,1,2,63,203-0
+14,AA,00,24,0D,1E,02,D4,42,01,26,07,01,44,01,1A,06,98,09,75,BB,76,C1,B2,65,9A,74,39,C7,38,C9---68,224,4,5,66,103-0
+14,A2,00,24,0D,1E,02,D3,41,01,19,05,01,31,01,1A,05,96,DF,9C,93,8D,C1,B2,65,9A,74,38,C7,38,C9---49,223,2,3,65,134-0
+14,AA,00,24,0D,1E,02,D8,41,01,16,05,01,34,01,1A,05,96,77,C3,55,C4,C1,B2,65,9A,74,39,C7,38,C9---52,228,2,3,65,181-0
+14,AA,00,24,0D,1E,02,DA,C0,01,0E,03,01,3E,01,1A,05,95,D4,EA,D9,EB,C1,B2,65,9A,64,39,C7,38,C9---62,230,1,2,192,220-0
+14,AA,00,24,0D,1E,02,DB,3F,01,0A,03,01,3C,01,1A,04,94,87,11,B3,12,C1,B2,65,9A,74,39,C7,38,C9
+*/
+//14,AA,00,24,0D,1E,02,D7,44,01,01,00,01,6F,01,1A,04,96,01,36,74,37,C1,B2,65,9A,74,39,C7,38,C9
 void PrepareMessage(void)
 {
 
 	txbuffer[packetpos]=meteo_packet; //energy code
-	txbuffer[test_pos]=MCRREG;
+	txbuffer[test_pos]=direction>>8;
 	txbuffer[average_pos]=(u8) waverage;
-	txbuffer[directon_pos]=direction;
 	txbuffer[gust_pos]=(u8) gust;
-	int tp=temp*10;
-	txbuffer[temp_pos]= tp>>8;
-	txbuffer[temp_pos+1]=tp & 0xff;
+	txbuffer[directon_pos]=(direction>>1) & 0xff;
+	txbuffer[batt_voltage]=ReadAD();
+	txbuffer[temp_pos]= temp>>8;
+	txbuffer[temp_pos+1]=temp & 0xff;
 	txbuffer[hum_pos]=hum;
 	txbuffer[rain_pos]=Regendata.rainhour;
 	txbuffer[totalrain_pos]=totalrain>>8;
 	txbuffer[totalrain_pos+1]=totalrain & 0xff;
 	txbuffer[pressure_pos]=hpa>>8;
 	txbuffer[pressure_pos+1]=hpa & 0xff;
-	txbuffer[batt_voltage]=ReadAD();
-	dew=(int) tlkRH_calculate_dewpoint(hum,temp);
+	dew=(int) tlkRH_calculate_dewpoint(hum,temp/10);
 	if (dew>100) dew=100;
 	txbuffer[dew_pos]=dew;
 }
@@ -94,28 +111,7 @@ void SPI_MasterInit(void)
 	SET(nSel);
 	SPCR = (1<<SPE)|(1<<MSTR)| (0<<DORD); //1us speed (1<<SPR0)|
 }
-/*
-u8 SPI_transceive(char dataout)
-{
-	u8 SPIout=0;
-	
 
-	char i=0;
-	for (i=0;i<8;i++) {
-		SPIout<<=1;
-		if ((dataout & 0x80)> 0) SET(MOSI); else RESET(MOSI);
-		SET(SCLK);
-		//_delay_us(dtm)
-		RESET(SCLK);
-		//  _delay_us(dtm)
-		if IS_SET(MISO) SPIout|=1;
-		
-		dataout<<=1;
-	}
-
-	return SPIout;
-}
-*/
 u8 SPI_MasterTransmit_Command(u8 cCommand)
 {
 	//return (SPI_transceive(cCommand)); //<<-----soft
@@ -192,23 +188,7 @@ void Init(void)
 	//tx_power=1;
 	#endif
 }
-/*
-void EnableInterrupt(char nr,char sense)
-{
-	if (nr==0)
-	{
-		EIMSK|=1<<INT0;
-		EICRA|=1<<ISC01;
-		if (sense==1) EICRA|=1<<ISC00;
-	}
-	else
-	{
-		EIMSK|=1<<INT1;
-		EICRA|=1<<ISC11;
-		if (sense==1) EICRA|=1<<ISC10;
-	}
-}
-*/
+
 void InitTimer1(void)
 {
 	TCCR1A=0;
@@ -226,23 +206,20 @@ void InitTimer0(void)
 	TIMSK0=1<<TOIE0;
 }
 ISR(TIMER1_OVF_vect) {
-	static u8 c=0;
+	static u16 c=0;
 
 	c++;
-	if (c==15) {
+	if (c==2700) {
 		c=0;
-/*
-		Regendata.verschil=(totalrain-Regendata.lastcounter)&0xffff;
+
+		Regendata.verschil=(totalrain-Regendata.lastcounter);
 		Regendata.lastcounter=totalrain;
 		if (Regendata.verschil>0) {
-			Regendata.rainhour=(2520/Regendata.seccounter)*Regendata.verschil; //aantal tiks per 2520 eenheid is 1 mm uur
-			Regendata.seccounter=1;
+			Regendata.rainhour=Regendata.verschil;
+			
 		}
-		Regendata.seccounter++;
-		if (Regendata.seccounter>2520) {Regendata.seccounter=2520;    //komt overeen met 1mm/uur reset na 40 min
-			Regendata.rainhour=0;
-		}
-		*/
+
+		
 	}
 	
 }
@@ -255,7 +232,7 @@ ISR(TIMER0_OVF_vect)
 		wcount++;
 		TOGGLE(HUMA);
 		if (wcount==8) {wcount=0;weatherdata[wp++]=wbyte;wbyte=0;}
-		if (wp>30){SET(Led);RESET(HUMB);start=0;}
+		if (wp>31){SET(Led);RESET(HUMB);start=0;}
 		if (wp==13) {SET(SCL);}
 	}
 }
@@ -280,10 +257,10 @@ ISR(INT0_vect)
 		case 2:case 3:case 8: case 9:case 13:if (Pulse>130 && Pulse<250) {start++;} else {}break;
 		case 4:case 5:case 6: case 7:case 10:case 11: case 12: if (Pulse<130) {start++;} else {start=0;} break;
 		case 14: SET(HUMB);
-		TCNT0=0xff-35;
+		TCNT0=0xff-prepos;
 		TIFR0 = 1<<TOV0;
 		start=15;break;
-		case 15: if (!IS_SET(Int0)) TCNT0=0xff-35;
+		case 15: if (!IS_SET(Int0)) TCNT0=0xff-prepos;
 		break;
 	}
 }
@@ -319,29 +296,42 @@ int main(void)
 	while (1)
 	{
 		if (IS_SET(Led)) {
-			if (weatherdata[0]==0x14) {
+			//first 6 bytes ident? securitycode? 14,AA,00,24,0D,1E
+			//&& weatherdata[22]==0xC1 && weatherdata[23]==0xB2
+			if (weatherdata[0]==0x14 ) {
 				temp=((weatherdata[6]<<8)+weatherdata[7])-500;
-				//	buitentemp<<=8;
-				//	buitentemp+=weatherdata[7];
-				//	buitentemp-=500;
-				hum=weatherdata[8];  //nog te controleren
+				hum=weatherdata[8];
 				waverage=weatherdata[10]; //+9 als msb?
+				waverage*=10;
+				waverage/=85;
 				gust=weatherdata[11];
 				gust*=73;
 				gust/=100;
 				
 				direction=weatherdata[13];
 				if (weatherdata[12] & 2) direction+=256;
-				totalrain=weatherdata[14]; //per stap 0.5 mm
+				totalrain=weatherdata[14]; //per stap 0.2 mm
 				totalrain<<=8;
 				totalrain+=weatherdata[15];
-				//wat met 16 en 17?
-			//	light=(weatherdata[18]<<8)+weatherdata[19];  //light of uv + pos 19 +20
+				//uv=weatherdata[16] index 0-15?
+				/*
+				light=weatherdata[17];
+				light<<=8;
+				light+=weatherdata[18];
+				light<<=8;
+				light+=weatherdata[19];
+				*/
+				// 21 = Checksum?
+				//checksum=0;
+				//for (u8 i=0;i<21;i++) {checksum+=weatherdata[i];}
+				//totalrain=checksum;
+				
 				if (Regendata.aligncounters==0)  {
 					Regendata.lastcounter=totalrain;    //one time voor startup
 					Regendata.rainhour=0;
 					Regendata.aligncounters=1;
 				}
+				//last words 22 -32 : C1,B2,65,A9,74,39,C7,38,C9,1E
 				Pout();
 				RF22B_INIT();
 				PrepareMessage();
@@ -360,19 +350,9 @@ int main(void)
 void Pout (void)
 {
 	char dtemp[200];
-	/*
-	strcat(dtemp,"");
-	for (u8 i=4;i<30;i++) {sprintf(buffer,"%02X,",weatherdata[i]);strcat(dtemp,buffer);}
-	sprintf(buffer,"-%d",direction);strcat(dtemp,buffer);
-	sprintf(buffer,"-%d",(int) temp);strcat(dtemp,buffer);
-	sprintf(buffer,"-%d",waverage);strcat(dtemp,buffer);
-	sprintf(buffer,"-%d",gust);strcat(dtemp,buffer);
-	sprintf(buffer,"-%d",hum);strcat(dtemp,buffer);
-	sprintf(buffer,"-%d", totalrain);strcat(dtemp,buffer);
-	sprintf(buffer,"-%d", light);strcat(dtemp,buffer);
-	sprintf(buffer,"\r\n"),strcat(dtemp,buffer);
-	*/
-		sprintf(dtemp,"%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X---%d,%d,%d,%d,%d,%d\r\n",weatherdata[0],weatherdata[1],weatherdata[2],weatherdata[3],weatherdata[4],weatherdata[5],weatherdata[6],weatherdata[7],weatherdata[8],weatherdata[9],weatherdata[10],weatherdata[11],weatherdata[12],weatherdata[13],weatherdata[14],weatherdata[15],weatherdata[16],weatherdata[17],weatherdata[18],weatherdata[19],weatherdata[20],weatherdata[21],weatherdata[22],weatherdata[23],weatherdata[24],weatherdata[25],weatherdata[26],weatherdata[27],weatherdata[28],direction,(int) temp,waverage,gust,hum,totalrain);
+
+	sprintf(dtemp,"%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X=%02X=%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X---%d,%d,%d,%d,%d,%d-%d\r\n",weatherdata[0],weatherdata[1],weatherdata[2],weatherdata[3],weatherdata[4],weatherdata[5],weatherdata[6],weatherdata[7],weatherdata[8],weatherdata[9],weatherdata[10],weatherdata[11],weatherdata[12],weatherdata[13],weatherdata[14],weatherdata[15],weatherdata[16],weatherdata[17],weatherdata[18],weatherdata[19],weatherdata[20],weatherdata[21],weatherdata[22],weatherdata[23],weatherdata[24],weatherdata[25],weatherdata[26],weatherdata[27],weatherdata[28],weatherdata[29],weatherdata[30],direction,temp,waverage,gust,hum,totalrain,Regendata.rainhour);
+//sprintf(dtemp,"%02X,%20X,%02X,%02X,%02X,%02X,%02X=%02X=%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X---%d,%d,%d,%d,%d,%d-%d\r\n",weatherdata[0],weatherdata[1],weatherdata[2],weatherdata[3],weatherdata[4],weatherdata[5],weatherdata[6],weatherdata[7],weatherdata[8],weatherdata[9],weatherdata[10],weatherdata[11],weatherdata[12],weatherdata[13],weatherdata[14],weatherdata[15],weatherdata[16],weatherdata[17],weatherdata[18],weatherdata[19],weatherdata[20],weatherdata[21],direction,temp,waverage,gust,hum,totalrain,Regendata.rainhour);
 	usart_pstr(dtemp);
 	_delay_ms(255);
 }
@@ -454,4 +434,5 @@ u8 ReadAD(void)
 	PRR=PRR_reg; //power down devices
 	return (res);
 }
+
 
