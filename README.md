@@ -40,7 +40,9 @@ Word 16  UV radiation. range 0-16
 
 Word 17,18,19  24 bits of Solar radiation.  Word 19 is HI word, word 20 middle, word 21 Low part. divide by 36000 to get w/m2 
 
-Word 20,21: CRC16  Need to be investigated . 
+Word 20 checksum over word 1 to 19.  
+
+Word 21 Seems to be word 19 +1.  No clue why. see examples F4,ca,F5------42,11,43-------DE,1C,DF  etc
 
 Words 22-32 unknown. steady data C1,B2,65,A9,74,39,C7,38,C9,1E Might be a firmware signature
 
@@ -51,3 +53,6 @@ examples outputs
 14,AA,00,24,0D,1E,02,CC,42,01,26,0A,01,A6,01,1A,05,95,BF,2C,12,2D,C1,B2,65,9A,74,39,C7,38,C9,1E
 14,AA,00,24,0D,1E,02,CD,43,01,2E,0B,01,B5,01,1A,05,95,6E,53,71,54,C1,B2,65,9A,74,39,C7,38,C9,1E
 14,AA,00,24,0D,1E,02,D6,3F,01,0B,01,01,BC,01,1A,06,99,3A,16,E4,17,C1,B2,65,9A,74,39,C7,38,C9,1E
+
+the output signals from the tx are not quite stable. even the update rate which should be 20 seconds can be 20-30 seconds.
+Might be that the processor is running on a low xtal freq. The bitrate is 90us, but a pulse can vary between 60-110 us.
