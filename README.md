@@ -57,4 +57,4 @@ examples outputs
 the output signals from the tx are not quite stable. even the update rate which should be 20 seconds can be 20-30 seconds.
 
 Might be that the processor is running on a low xtal freq. The bitrate is 90us, but a pulse can vary between 60-110 us.
-Note: the tx message is transmitter twice in 1 message. So will the first fail, the soft can catch the second 
+Note: the tx message is transmitted twice in 1 message. So will the first fail, the soft can catch the second 
