@@ -55,4 +55,6 @@ examples outputs
 14,AA,00,24,0D,1E,02,D6,3F,01,0B,01,01,BC,01,1A,06,99,3A,16,E4,17,C1,B2,65,9A,74,39,C7,38,C9,1E
 
 the output signals from the tx are not quite stable. even the update rate which should be 20 seconds can be 20-30 seconds.
+
 Might be that the processor is running on a low xtal freq. The bitrate is 90us, but a pulse can vary between 60-110 us.
+Note: the tx message is transmitter twice in 1 message. So will the first fail, the soft can catch the second 
