@@ -16,7 +16,9 @@ Followed by sync C0AAC0AA .
 
 the 6 words probably product/security codes 14,AA,00,24,0D,1E
 
-Total 32 words are transmitted starting after the Sync, 6 product/security, 16 data, 10 unknow
+the actual message starts at word 1.  a simple checksum is provided summing word 1 to 19, and store the result in word 20
+
+Total 32 words are transmitted starting after the Sync, 6 product/security, 16 data, 10 unknow (discarded)
 
 Word 6: HI word of temperature
 
