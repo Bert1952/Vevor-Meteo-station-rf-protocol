@@ -1,3 +1,4 @@
+
 /*
 * meteorepeater.c
 *
@@ -199,6 +200,7 @@ void InitTimer1(void)
 	TCCR1B=(1<<CS11 ); //prescaler 128 1<<CS11;
 	TIFR1 = 1<<TOV1; //Clear TOV1 / clear pending interrupts  timer0
 	TCNT1=0;
+	TIMSK1=1<<TOIE1;
 }
 
 void InitTimer0(void)
@@ -211,17 +213,17 @@ void InitTimer0(void)
 }
 ISR(TIMER1_OVF_vect) {
 	static u16 c=0;
-
+	wdt_reset();
 	c++;
-	if (c==2700) {
+	if (c==9155) {
 		c=0;
 
 		Regendata.verschil=(totalrain-Regendata.lastcounter);
 		Regendata.lastcounter=totalrain;
-		if (Regendata.verschil>0) {
-			Regendata.rainhour=Regendata.verschil;
-			
-		}
+		//if (Regendata.verschil>0) {
+		Regendata.rainhour=Regendata.verschil*5;
+		
+		//}
 
 		
 	}
@@ -238,6 +240,19 @@ ISR(TIMER0_OVF_vect)
 		if (wp>22){RESET(HUMB);start=0; if (CheckData()==1) SET(Led);}
 	}
 }
+void Config_wdt(u8 timeout) {
+
+	cli();
+	wdt_reset();                  // reset watchdog timer
+	
+	MCUSR &= ~(1<<WDRF);          // clear reset flag
+	WDTCSR = (1<<WDE) | (1<<WDCE) ; // enable watchdog
+	WDTCSR = (1<<WDE)|(1<<WDP2) |(1<<WDP0); //(1<<WDIE)|
+	//	WDTCSR = (1<<WDIE) |(1<<WDE) | timeout;  // watchdog interrupt instead of reset
+	//+reset, timeout can be 15,30,60,120,250,500ms or 1,2,4,8s
+	sei();
+}
+
 
 ISR(INT0_vect)
 {
@@ -271,6 +286,11 @@ ISR(INT0_vect)
 int main(void)
 
 {
+
+	wdt_reset();
+	MCUSR=0;
+	WDTCSR|=_BV(WDCE) | _BV(WDE);
+	WDTCSR=0;
 	Init();
 	SPI_MasterInit();
 	SET(Led);
@@ -293,6 +313,7 @@ int main(void)
 	RESET(HUMA);
 	SET_OUTPUT(HUMB);
 	SET(HUMB);
+	Config_wdt(WDTO_250MS);
 
 	sei();
 
@@ -322,8 +343,8 @@ void Pout (void)
 	char dtemp[200];
 
 	//	sprintf(dtemp,"%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X=%02X=%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X---%d,%d,%d,%d,%d,%d-%d\r\n",weatherdata[0],weatherdata[1],weatherdata[2],weatherdata[3],weatherdata[4],weatherdata[5],weatherdata[6],weatherdata[7],weatherdata[8],weatherdata[9],weatherdata[10],weatherdata[11],weatherdata[12],weatherdata[13],weatherdata[14],weatherdata[15],weatherdata[16],weatherdata[17],weatherdata[18],weatherdata[19],weatherdata[20],weatherdata[21],weatherdata[22],weatherdata[23],weatherdata[24],weatherdata[25],weatherdata[26],weatherdata[27],weatherdata[28],weatherdata[29],weatherdata[30],direction,temp,waverage,gust,hum,totalrain,Regendata.rainhour);
-	sprintf(dtemp,"%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X=%02X=%02X,%02X,%02X,%02X,%02X---%d,%d,%d,%d,%d,%d-%d\r\n",weatherdata[0],weatherdata[1],weatherdata[2],weatherdata[3],weatherdata[4],weatherdata[5],weatherdata[6],weatherdata[7],weatherdata[8],weatherdata[9],weatherdata[10],weatherdata[11],weatherdata[12],weatherdata[13],weatherdata[14],weatherdata[15],weatherdata[16],weatherdata[17],weatherdata[18],weatherdata[19],weatherdata[20],weatherdata[21],direction,temp,waverage,gust,hum,totalrain,Regendata.rainhour);
-	usart_pstr(dtemp);
+		sprintf(dtemp,"%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X=%02X=%02X,%02X,%02X,%02X,%02X---%d,%d,%d,%d,%d,%d-%d\r\n",weatherdata[0],weatherdata[1],weatherdata[2],weatherdata[3],weatherdata[4],weatherdata[5],weatherdata[6],weatherdata[7],weatherdata[8],weatherdata[9],weatherdata[10],weatherdata[11],weatherdata[12],weatherdata[13],weatherdata[14],weatherdata[15],weatherdata[16],weatherdata[17],weatherdata[18],weatherdata[19],weatherdata[20],weatherdata[21],direction,temp,waverage,gust,hum,totalrain,Regendata.rainhour);
+		usart_pstr(dtemp);
 	_delay_ms(255);
 }
 u8 CheckData (void)
@@ -337,12 +358,15 @@ u8 CheckData (void)
 	if (temp>400 ) return 0;
 	hum=weatherdata[8];
 	if (hum>100) return 0;
-	waverage=weatherdata[10]; //+9 als msb?
-	waverage*=10;
-	waverage/=85;
+	
+	waverage=weatherdata[10]; //units km/h with decimal, thus 124 km/h/10
+	//waverage+=(weatherdata[9]<<7 & 0xf00) ;
+	waverage/=10;
+
 	gust=weatherdata[11];
-	gust*=73;
-	gust/=100;
+	gust*=65;
+	gust/=100;//probably landmiles? not knots
+
 	
 	direction=weatherdata[13];
 	if (weatherdata[12] & 2) direction+=256;
@@ -455,6 +479,7 @@ u8 ReadAD(void)
 	PRR=PRR_reg; //power down devices
 	return (res);
 }
+
 
 
 
