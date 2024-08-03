@@ -1,13 +1,22 @@
 cheap weatherstation sold by Vevor.
  
-https://nl.aliexpress.com/item/1005005999388306.html?spm=a2g0o.order_list.order_list_main.5.11d779d25eGC8l&gatewayAdapt=glo2nld
+https://nl.aliexpress.com/item/1005005999388306.html?
+
+spm=a2g0o.order_list.order_list_main.5.11d779d25eGC8l&gatewayAdapt=glo2nld
+
 TX freq 868.35 Mhz FSK. Transmitter IC found CMOSTEC CMT2119A.
+
 Receiver prob CMT2219A. Not sure about this as pcb in the display was mounted backward
+
 Used Hope’s rfm22b in direct mode to catch the data.
+
 Found a datastream starting with a pos/neg pulse 1350us each.
+
 Next 39 preamble, 90us bittime
 Followed by sync C0AAC0AA .
+
 the 6 bytes probably product/security codes 14,AA,00,24,0D,1E
+
 the actual message starts at byte 1. a simple checksum is provided summing byte 1 to 19, and store the result in byte 20
 Total 32 bytes are transmitted starting after the Sync, 6 product/security, 16 data, 10 unknow (discarded)
 Byte 6: HI byte of temperature
