@@ -1,7 +1,4 @@
-cheap weatherstation sold by Vevor.<br/> ![afbeelding](https://github.com/user-attachments/assets/36f7f097-8bcf-461c-8439-d1e50432dca4)
-
-https://nl.aliexpress.com/item/1005005999388306.html?
-spm=a2g0o.order_list.order_list_main.5.11d779d25eGC8l&gatewayAdapt=glo2nld<br/>
+cheap weatherstation sold by Vevor.<br/> ![afbeelding](https://github.com/user-attachments/assets/36f7f097-8bcf-461c-8439-d1e50432dca4) <br/>
 TX freq 868.35 Mhz FSK. Transmitter IC found CMOSTEC CMT2119A.<br/>
 Receiver prob CMT2219A. Not sure about this as pcb in the display was mounted backward<br/>
 Used Hope’s rfm22b in direct mode to catch the data.<br/>
