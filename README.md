@@ -22,23 +22,14 @@ Byte 14 and 15. 16 bits raincounter. Byte 8 is HI part. each increment will be 0
 Byte 16 UV radiation. range 0-16<br/>
 Byte 17,18,19 24 bits of Solar radiation. Byte 19 is HI byte, byte 20 middle, byte 21 Low part. divide by 36000 to get w/m2<br/>
 Byte 20 checksum over byte 1 to 19.<br/>
-
-Byte 21 Seems to be byte 19 +1. No clue why. see examples F4,CA,F5------42,11,43-------DE,1C,DF etc
-
-Bytes 22-32 unknown. steady data C1,B2,65,A9,74,39,C7,38,C9,1E Might be a firmware signature
-
-examples outputs 14,AA,00,24,0D,1E,02,DA,40,01,06,01,01,57,00,1A,06,98,88,F4,CA,F5,C1,B2,65,9A,74,39,C7,38,C9,1E 
-
-14,AA,00,24,0D,1E,02,DA,41,01,0E,02,01,8D,01,1A,06,98,61,42,11,43,C1,B2,65,9A,74,39,C7,38,C9,1E 
-
-14,AA,00,24,0D,1E,02,D0,41,01,1A,07,01,93,01,1A,05,94,C6,DE,1C,DF,C1,B2,65,9A,74,39,C7,38,C9,1E
-
-14,AA,00,24,0D,1E,02,CC,42,01,26,0A,01,A6,01,1A,05,95,BF,2C,12,2D,C1,B2,65,9A,74,39,C7,38,C9,1E 
-
-14,AA,00,24,0D,1E,02,CD,43,01,2E,0B,01,B5,01,1A,05,95,6E,53,71,54,C1,B2,65,9A,74,39,C7,38,C9,1E 
-
-14,AA,00,24,0D,1E,02,D6,3F,01,0B,01,01,BC,01,1A,06,99,3A,16,E4,17,C1,B2,65,9A,74,39,C7,38,C9,1E
-
-Might be that the processor is running on a low xtal freq. The bitrate is 90us, but a pulse can vary between 60-110 us. Note: the tx message is transmitted twice in 1 message. So will the first fail, the soft can catch the second
-Added a watchdog in case the program will crash. It just fits in 8k atmega88a
+Byte 21 Seems to be byte 19 +1. No clue why. see examples F4,CA,F5------42,11,43-------DE,1C,DF etc<br/>
+Bytes 22-32 unknown. steady data C1,B2,65,A9,74,39,C7,38,C9,1E Might be a firmware signature<br/>
+examples outputs 14,AA,00,24,0D,1E,02,DA,40,01,06,01,01,57,00,1A,06,98,88,F4,CA,F5,C1,B2,65,9A,74,39,C7,38,C9,1E <br/>
+14,AA,00,24,0D,1E,02,DA,41,01,0E,02,01,8D,01,1A,06,98,61,42,11,43,C1,B2,65,9A,74,39,C7,38,C9,1E <br/>
+14,AA,00,24,0D,1E,02,D0,41,01,1A,07,01,93,01,1A,05,94,C6,DE,1C,DF,C1,B2,65,9A,74,39,C7,38,C9,1E<br/>
+14,AA,00,24,0D,1E,02,CC,42,01,26,0A,01,A6,01,1A,05,95,BF,2C,12,2D,C1,B2,65,9A,74,39,C7,38,C9,1E <br/>
+14,AA,00,24,0D,1E,02,CD,43,01,2E,0B,01,B5,01,1A,05,95,6E,53,71,54,C1,B2,65,9A,74,39,C7,38,C9,1E <br/>
+14,AA,00,24,0D,1E,02,D6,3F,01,0B,01,01,BC,01,1A,06,99,3A,16,E4,17,C1,B2,65,9A,74,39,C7,38,C9,1E<br/>
+Might be that the processor is running on a low xtal freq. The bitrate is 90us, but a pulse can vary between 60-110 us. <br/>Note: the tx message is transmitted twice in 1 message. So will the first fail, the soft can catch the second<br/>
+Added a watchdog in case the program will crash. It just fits in 8k atmega88a<br/>
 
