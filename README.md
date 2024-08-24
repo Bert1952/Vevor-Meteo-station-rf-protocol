@@ -1,49 +1,27 @@
-cheap weatherstation sold by Vevor.
- 
+cheap weatherstation sold by Vevor.<br/> 
 https://nl.aliexpress.com/item/1005005999388306.html?
-
-spm=a2g0o.order_list.order_list_main.5.11d779d25eGC8l&gatewayAdapt=glo2nld
-
-TX freq 868.35 Mhz FSK. Transmitter IC found CMOSTEC CMT2119A.
-
-Receiver prob CMT2219A. Not sure about this as pcb in the display was mounted backward
-
-Used Hope’s rfm22b in direct mode to catch the data.
-
-Found a datastream starting with a pos/neg pulse 1350us each.
-
-Next 39 preamble, 90us bittime
-Followed by sync C0AAC0AA .
-
-the 6 bytes probably product/security codes 14,AA,00,24,0D,1E
-
-the actual message starts at byte 1. a simple checksum is provided summing byte 1 to 19, and store the result in byte 20
-
-Total 32 bytes are transmitted starting after the Sync, 6 product/security, 16 data, 10 unknow (discarded)
-
-Byte 6: HI byte of temperature
-
-Byte 7 LO byte of temperature. Temperature has a offset of 500
-
-Byte 8 Humidity 0-100
-
-Byte 9 HI byte of average (need to be checked), may be 2 of 3 bits are used of this byte.
-
-Byte 10 LO byte of average windspeed. ouput is km/h with decimal thus km/h *10
-
-Byte 11 Gust windspeed. Relation to km/u *62/100. Not clear which unit the gust is expressed, but comparing the result with windfinder gives a good result in km/h
-
-Byte 12 Direction byte bit 8: bit 2 of this byte is setted. Other bits probably batt stat etc
-
-Byte 13 Direction 0-0ff 8 bits of total 9 (0-360 degrees)
-
-Byte 14 and 15. 16 bits raincounter. Byte 8 is HI part. each increment will be 0.2 mm
-
-Byte 16 UV radiation. range 0-16
-
-Byte 17,18,19 24 bits of Solar radiation. Byte 19 is HI byte, byte 20 middle, byte 21 Low part. divide by 36000 to get w/m2
-
-Byte 20 checksum over byte 1 to 19.
+spm=a2g0o.order_list.order_list_main.5.11d779d25eGC8l&gatewayAdapt=glo2nld<br/>
+TX freq 868.35 Mhz FSK. Transmitter IC found CMOSTEC CMT2119A.<br/>
+Receiver prob CMT2219A. Not sure about this as pcb in the display was mounted backward<br/>
+Used Hope’s rfm22b in direct mode to catch the data.<br/>
+Found a datastream starting with a pos/neg pulse 1350us each.<br/>
+Next 39 preamble, 90us bittime<br/>
+Followed by sync C0AAC0AA .<br/>
+the 6 bytes probably product/security codes 14,AA,00,24,0D,1E<br/>
+the actual message starts at byte 1. a simple checksum is provided summing byte 1 to 19, and store the result in byte 20<br/>
+Total 32 bytes are transmitted starting after the Sync, 6 product/security, 16 data, 10 unknow (discarded)<br/>
+Byte 6: HI byte of temperature<br/>
+Byte 7 LO byte of temperature. Temperature has a offset of 500<br/>
+Byte 8 Humidity 0-100<br/>
+Byte 9 HI byte of average (need to be checked), may be 2 of 3 bits are used of this byte.<br/>
+Byte 10 LO byte of average windspeed. ouput is km/h with decimal thus km/h *10<br/>
+Byte 11 Gust windspeed. Relation to km/u *62/100. Not clear which unit the gust is expressed, but comparing the result with windfinder gives a good result in km/h<br/>
+Byte 12 Direction byte bit 8: bit 2 of this byte is setted. Other bits probably batt stat etc<br/>
+Byte 13 Direction 0-0ff 8 bits of total 9 (0-360 degrees)<br/>
+Byte 14 and 15. 16 bits raincounter. Byte 8 is HI part. each increment will be 0.2 mm<br/>
+Byte 16 UV radiation. range 0-16<br/>
+Byte 17,18,19 24 bits of Solar radiation. Byte 19 is HI byte, byte 20 middle, byte 21 Low part. divide by 36000 to get w/m2<br/>
+Byte 20 checksum over byte 1 to 19.<br/>
 
 Byte 21 Seems to be byte 19 +1. No clue why. see examples F4,CA,F5------42,11,43-------DE,1C,DF etc
 
